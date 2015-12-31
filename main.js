@@ -1,8 +1,3 @@
-// Array move function that moves an element from
-// one element to the (after initial cut) desired location
-Array.prototype.move = function(from, to) {
-    this.splice(to, 0, this.splice(from, 1)[0]);
-};
 // Date addDays allows us to safely add days without having to manually
 // calculate month rollover
 Date.prototype.addDays = function(days)
@@ -95,13 +90,14 @@ function buildScheduleJSON() {
 };
 
 function buildScheduleICS(coursesArr) {
-  // Crete the ics calendar object to build
+  // Create the ics calendar object to build
   var cal = ics();
   var firstLecture = '', firstDiscussion = '';
 
   coursesArr.forEach(function(courseObj, index, arr) {
-    // Calculate when the date of the first lecture is
-    firstLecture = formatDateRegular(calcStartDate(courseObj.days)) + ' ';
+    // Calculate when the first available date for lecture is
+    firstLecture =
+      formatDateRegular(calcStartDate(courseObj.days, courseObj)) + ' ';
 
     // First, add the lecture event
     cal.addEvent(
@@ -116,7 +112,7 @@ function buildScheduleICS(coursesArr) {
       firstLecture + courseObj.endTime,    //stop parameter
       {                     //repeat parameter
         freq: 'WEEKLY',
-        stop: getQtrEndRepeatDate(),
+        stop: calcEndRepeatDate(courseObj),
         days: courseObj.days
       }
     );
@@ -124,8 +120,9 @@ function buildScheduleICS(coursesArr) {
     // Then, add discussion event if it exists
     if(courseObj.discussion)
     {
-      // Calculate when the date of the first discussion is
-      firstDiscussion = formatDateRegular(calcStartDate(courseObj.discDays)) + ' ';
+      // Calculate when the first available date for discussion is
+      firstDiscussion =
+        formatDateRegular(calcStartDate(courseObj.discDays, courseObj)) + ' ';
 
       cal.addEvent(
         courseObj.course + ' Discussion',     //subject parameter
@@ -138,7 +135,7 @@ function buildScheduleICS(coursesArr) {
         firstDiscussion + courseObj.discEndTime,    //stop parameter
         {                     //repeat parameter
           freq: 'WEEKLY',
-          stop: getQtrEndRepeatDate(),
+          stop: calcEndRepeatDate(courseObj),
           days: courseObj.discDays
         }
       );
@@ -149,35 +146,47 @@ function buildScheduleICS(coursesArr) {
   cal.download('test');
 
   // Helper functions for building the .ics
-  function getQtrEndRepeatDate() {
-    return dateMap15_16[QUARTER.split(' ')[0].toLowerCase()].endDate;
+  function calcEndRepeatDate(courseObj) {
+    // If course is shorter than the quarter, end date is course's end date
+    // Otherwise, the end date is the quater's end date
+    return courseObj.shorterCourse ?
+      courseObj.endDate :
+      dateMap15_16[QUARTER.split(' ')[0].toLowerCase()].endDate;
   };
-  function getQtrStartDate() {
+  function getstartDate() {
     return dateMap15_16[QUARTER.split(' ')[0].toLowerCase()].startDate;
   };
-  function calcStartDate(dayArr) {
-    var firstDayOfQtr = dateMap15_16[QUARTER.split(' ')[0].toLowerCase()].startDay;
-    var qtrStartDate = dateMap15_16[QUARTER.split(' ')[0].toLowerCase()].startDate;
+  function calcStartDate(dayArr, courseObj) {
+    var startDate;
 
-    // Find the difference between when the qtr starts and when the class day is
-    var difference = daysAlt.indexOf(dayArr[0]) - days.indexOf(firstDayOfQtr);
-    // If difference is == 0, the start of qtr coincides with first lecture, we
-    // can simply return the start of qtr date
-    if(difference === 0){
-      return qtrStartDate;
+    // Begin by finding out if course is shorter than the regular quarter
+    if (courseObj.shorterCourse){
+      startDate = courseObj.startDate;
     }
-    // If difference is > 0, the start of qtr is before first lecture and we
-    // can attend later in the week. We must adjust the date accordingly.
-    else if (difference > 0) {
-      return formatDateRegular(new Date(qtrStartDate).addDays(difference));
-    }
-    // If difference is < 0, check if 2nd day of class available. If there is
-    // no 2nd day of class, we must wait until next week.
+    // Otherwise, we use the quarter start date
     else {
-      //TODO: Compare all available start dates and find the min
+      startDate = dateMap15_16[QUARTER.split(' ')[0].toLowerCase()].startDate;
+    }
+    //var firstDayOfQtr = dateMap15_16[QUARTER.split(' ')[0].toLowerCase()].startDay;
+
+    // // Find the difference between when the qtr starts and when the class day is
+    // var difference = daysAlt.indexOf(dayArr[0]) - days.indexOf(firstDayOfQtr);
+    // // If difference is == 0, the start of qtr coincides with first lecture, we
+    // // can simply return the start of qtr date
+    // if(difference === 0){
+    //   return startDate;
+    // }
+    // // If difference is > 0, the start of qtr is before first lecture and we
+    // // can attend later in the week. We must adjust the date accordingly.
+    // else if (difference > 0) {
+    //   return formatDateRegular(new Date(startDate).addDays(difference));
+    // }
+    // // If difference is < 0, check if 2nd day of class available. If there is
+    // // no 2nd day of class, we must wait until next week.
+    // else {
       var classStartDatesArr = [];
       dayArr.forEach(function(elem, index, arr) {
-        classStartDatesArr.push(nextDay(daysAlt.indexOf(elem), qtrStartDate));
+        classStartDatesArr.push(nextDay(daysAlt.indexOf(elem), startDate));
       });
       return new Date(Math.min.apply(null,classStartDatesArr));
 
@@ -187,8 +196,7 @@ function buildScheduleICS(coursesArr) {
       // else {
       //   return nextDay(days.indexOf[])
       // }
-    }
-
+    //}
   };
   // Returns a string in MM/DD/YY format
   function formatDateRegular(pDate)
