@@ -1,0 +1,37 @@
+{
+  "manifest_version": 2,
+  "name": "GOLD Calendar",
+  "version": "1.0",
+  "author": "Richard Waltman",
+  "description": "Exports UCSB GOLD schedules for use in a calendar program like iCal or Google Calendar",
+
+
+  "page_action": {
+    "default_icon": {
+      "19": "icon19.png",
+      "38": "icon19.png"
+    },
+    "default_popup": "popup.html",
+    "default_title": "GOLD Calendar"
+  },
+
+
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "permissions": [
+    "declarativeContent",
+    "downloads"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["https://my.sa.ucsb.edu/gold/StudentSchedule.aspx"],
+      "js": ["icsBuilder.js", "FileSaver.min.js", "course.js", "main.js"],
+      "css": ["button.css"]
+    }
+  ]
+
+
+}

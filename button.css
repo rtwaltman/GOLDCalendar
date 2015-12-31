@@ -1,0 +1,21 @@
+.btn-class{
+ display: inline-block;
+ border: none;
+ color: #FFFFFF;
+ border-radius: 3px 3px 3px 3px;
+ -webkit-border-radius: 3px 3px 3px 3px;
+ -moz-border-radius: 3px 3px 3px 3px;
+ font-family: Arial;
+ width: auto;
+ height: auto;
+ font-size: 13px;
+ padding: 3px 8px;
+ margin-right: 1px;
+ background-color: #335CA9;
+ float: right;
+}
+.btn-class:hover, .btn-class:active{
+ border: none;
+ color: #ffffff;
+ background-color: #4379DE;
+}
