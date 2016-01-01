@@ -22,6 +22,9 @@ var Course = function Course(courseInfoArr, qtr) {
 
 		this.startDate = regExpArr[0].split(' - ')[0] + '/' + QUARTER.split('20')[1];
 		this.endDate = regExpArr[0].split(' - ')[1] + '/' + QUARTER.split('20')[1];
+
+		// Cut the extra 'Session ### (MM/DD - MM/DD)' text
+		courseAndTitle = courseAndTitle.split('Session')[0];
 	}
 
 	// There is a discussion in addition to the lecture

@@ -11,7 +11,7 @@ Date.prototype.addDays = function(days)
 // https://registrar.sa.ucsb.edu/cal2016.aspx
 // Automating this would likely require web crawling
 var dateMap15_16 = {
-  "fall": {startDate: new Date('9/24/15'), startDay: 'TH', endDate: '12/5/15'},
+  "fall": {startDate: new Date('9/24/15'), startDay: 'TH', endDate: '12/4/15'},
   "winter": {startDate: new Date('1/4/16'), startDay: 'MO', endDate: '3/11/16'},
   "spring": {startDate: new Date('3/28/16'), startDay: 'MO', endDate: '6/3/16'}
 };
@@ -112,7 +112,7 @@ function buildScheduleICS(coursesArr) {
       firstLecture + courseObj.endTime,    //stop parameter
       {                     //repeat parameter
         freq: 'WEEKLY',
-        stop: calcEndRepeatDate(courseObj),
+        stop: calcEndRepeatDate(courseObj) + ' 11:59 pm',
         days: courseObj.days
       }
     );
@@ -135,7 +135,7 @@ function buildScheduleICS(coursesArr) {
         firstDiscussion + courseObj.discEndTime,    //stop parameter
         {                     //repeat parameter
           freq: 'WEEKLY',
-          stop: calcEndRepeatDate(courseObj),
+          stop: calcEndRepeatDate(courseObj) + ' 11:59 pm',
           days: courseObj.discDays
         }
       );
