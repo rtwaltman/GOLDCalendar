@@ -86,6 +86,45 @@ function buildScheduleJSON() {
 
   	console.log(course);
   }
+
+  // Get the Final Table out of the HTML and find the exam <td> elements
+  var finalsTable = document.getElementById('pageContent_FinalsGrid')
+  // Only proceed if Final Table was available
+  if(finalsTable){
+    var finalExams = Array.prototype.slice.call(
+      finalsTable.getElementsByClassName('clcellprimary')
+    );
+
+    // Search final exam dates and add to Course Object
+    var regExpValidDate = /^[A-Z]{1}[a-z]+, [A-Z]{1}[a-z]+ \d{1,2}, \d{4} \d{1,2}:\d{2} [A|P][M] - \d{1,2}:\d{2} [A|P][M]/;
+    // Base Date means: 'Sunday, January 6, 2016' part of the string
+    var regExpBaseDate = /^[A-Z]{1}[a-z]+, [A-Z]{1}[a-z]+ \d{1,2}, \d{4}/;
+    // Globally matches the times, i.e. 8:00 AM
+    var regExpTimes = /\d{1,2}:\d{2} [A|P][M]/g
+    // Go through the finalExams Collection in pairs to check if the date of each
+    // row is valid. If so, add the finalExamDate to the appropriate Course obj
+    var courseString, dateString, baseDate, timesArr, matchedObj;
+    for(i = 0; i < finalExams.length; i += 2){
+      courseString = finalExams[i].innerText;
+      dateString = finalExams[i+1].innerText;
+
+      if(regExpValidDate.test(dateString)){
+        baseDate = regExpBaseDate.exec(dateString)[0];
+        timeArr = dateString.match(regExpTimes);
+
+        // Find the object in the Courses Array with the matching title string
+        // Ex: 'MCDB 220A - CHROMOSOMES'
+        // When found, assign a new property, finalExamDate
+        matchedObj = Courses.find(function (courseObj) {
+          return courseObj.id === courseString;
+        });
+        matchedObj.finalExamStart = baseDate + ' ' + timeArr[0];
+        matchedObj.finalExamEnd = baseDate + ' ' + timeArr[1];
+
+        console.log("Added " + dateString + " final to " + courseString);
+      }
+    }
+  }
   return Courses;
 };
 
@@ -140,6 +179,20 @@ function buildScheduleICS(coursesArr) {
         }
       );
     }
+
+    // If a valid final exam was found for the course, add the event for it
+    if (courseObj.hasOwnProperty('finalExamStart')) {
+      cal.addEvent(
+        courseObj.course + ' Final',     //subject parameter
+        [                     //description parameter
+          'Title: ' + courseObj.title,
+          'Instructor: ' + courseObj.instructor,
+        ].join('\\n'),
+        courseObj.location,   //location parameter
+        courseObj.finalExamStart,  //begin parameter
+        courseObj.finalExamEnd    //stop parameter
+      );
+    }
   });
 
   makelogs(cal);
@@ -167,36 +220,13 @@ function buildScheduleICS(coursesArr) {
     else {
       startDate = dateMap15_16[QUARTER.split(' ')[0].toLowerCase()].startDate;
     }
-    //var firstDayOfQtr = dateMap15_16[QUARTER.split(' ')[0].toLowerCase()].startDay;
 
-    // // Find the difference between when the qtr starts and when the class day is
-    // var difference = daysAlt.indexOf(dayArr[0]) - days.indexOf(firstDayOfQtr);
-    // // If difference is == 0, the start of qtr coincides with first lecture, we
-    // // can simply return the start of qtr date
-    // if(difference === 0){
-    //   return startDate;
-    // }
-    // // If difference is > 0, the start of qtr is before first lecture and we
-    // // can attend later in the week. We must adjust the date accordingly.
-    // else if (difference > 0) {
-    //   return formatDateRegular(new Date(startDate).addDays(difference));
-    // }
-    // // If difference is < 0, check if 2nd day of class available. If there is
-    // // no 2nd day of class, we must wait until next week.
-    // else {
-      var classStartDatesArr = [];
-      dayArr.forEach(function(elem, index, arr) {
-        classStartDatesArr.push(nextDay(daysAlt.indexOf(elem), startDate));
-      });
-      return new Date(Math.min.apply(null,classStartDatesArr));
-
-      // if (dayArr.length > 1){ //check next day recursively
-      //   return calcStartDate(dayArr.slice(1));
-      // } //base case where length = 1 and difference is
-      // else {
-      //   return nextDay(days.indexOf[])
-      // }
-    //}
+    //
+    var classStartDatesArr = [];
+    dayArr.forEach(function(elem, index, arr) {
+      classStartDatesArr.push(nextDay(daysAlt.indexOf(elem), startDate));
+    });
+    return new Date(Math.min.apply(null,classStartDatesArr));
   };
   // Returns a string in MM/DD/YY format
   function formatDateRegular(pDate)
@@ -210,11 +240,12 @@ function buildScheduleICS(coursesArr) {
   };
 };
 //Get a new date by passing in current Date and day of week desired
+// 0 = Sunday -> 6 = Saturday
 function nextDay(dow, pDate){
     var date = new Date(pDate);
     date.setDate(date.getDate() + (dow+(7-date.getDay())) % 7);
     return date;
-}
+};
 
 // You can use this for easy debugging
 var makelogs = function(obj) {
@@ -224,6 +255,6 @@ var makelogs = function(obj) {
 	console.log('Calendar With Header');
 	console.log('=================');
 	console.log(obj.calendar());
-}
+};
 
 main();

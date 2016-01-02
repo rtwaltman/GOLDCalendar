@@ -66,7 +66,8 @@ var ics = function() {
               }
             }
             // Exit out if the begin and stop are the same and if repeat is empty
-            if (begin === stop || (repeat.length === 1 && repeat[0] === '')){
+            if (begin === stop || typeof repeat !== 'undefined' &&
+            (repeat.length === 1 && repeat[0] === '')){
               return false;
             }
 

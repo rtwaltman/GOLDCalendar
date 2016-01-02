@@ -4,13 +4,13 @@
   "version": "1.0",
   "author": "Richard Waltman",
   "description": "Exports UCSB GOLD schedules for use in a calendar program like iCal or Google Calendar",
-
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
 
   "page_action": {
-    "default_icon": {
-      "19": "icon19.png",
-      "38": "icon19.png"
-    },
+    "default_icon": "icon38.png",
     "default_popup": "popup.html",
     "default_title": "GOLD Calendar"
   },

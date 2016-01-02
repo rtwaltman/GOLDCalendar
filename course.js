@@ -68,6 +68,7 @@ var Course = function Course(courseInfoArr, qtr) {
 	if(courseInfoArr.length >= 8) {
 		this.course = courseAndTitle.split(' - ')[0].trim();
 		this.title = courseAndTitle.split(' - ')[1].trim();
+    this.id = [this.course, this.title].join(' - ');
 		this.enrollCode = courseInfoArr[1];
 		this.grading = courseInfoArr[2];
 		this.units = courseInfoArr[3];
