@@ -42,8 +42,6 @@ function main() {
   schedHeader.style.marginBottom=0;
 
   function exportSchedule() {
-    console.log("Exporting Schedule");
-    //buildSchedule();
     buildScheduleICS(buildScheduleJSON());
   };
 };
@@ -79,12 +77,9 @@ function buildScheduleJSON() {
       return elem.innerText.trim().replace(/\s+/g, " ");
     });
 
-    console.log(courseInfoArr);
     // Build Course Object
   	course = new Course(courseInfoArr);
     Courses.push(course);
-
-  	console.log(course);
   }
 
   // Get the Final Table out of the HTML and find the exam <td> elements
@@ -120,8 +115,6 @@ function buildScheduleJSON() {
         });
         matchedObj.finalExamStart = baseDate + ' ' + timeArr[0];
         matchedObj.finalExamEnd = baseDate + ' ' + timeArr[1];
-
-        console.log("Added " + dateString + " final to " + courseString);
       }
     }
   }
@@ -195,9 +188,8 @@ function buildScheduleICS(coursesArr) {
     }
   });
 
-  makelogs(cal);
   cal.download(QUARTER.replace(/ /g,''));
-  
+
   // Helper functions for building the .ics
   function calcEndRepeatDate(courseObj) {
     // If course is shorter than the quarter, end date is course's end date
