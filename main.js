@@ -196,8 +196,8 @@ function buildScheduleICS(coursesArr) {
   });
 
   makelogs(cal);
-  cal.download('test');
-
+  cal.download(QUARTER.replace(/ /g,''));
+  
   // Helper functions for building the .ics
   function calcEndRepeatDate(courseObj) {
     // If course is shorter than the quarter, end date is course's end date
