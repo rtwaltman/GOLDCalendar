@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "GOLD Calendar",
-  "version": "1.1",
+  "version": "1.11",
   "author": "Richard Waltman",
   "description": "Easily add your academic schedule to your calendar program of choice!",
   "icons": {

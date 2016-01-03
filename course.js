@@ -28,13 +28,11 @@ var Course = function Course(courseInfoArr, qtr) {
 	}
 
 	// There is a discussion in addition to the lecture
-	// length 11: Same instructor for lecture and discussion
-	// length 12: Different instructors for lecture and discussion
-	// length 13: One instructor for lecture, Multiple instructors for discussion
 	if(courseInfoArr.length >= 11) {
 		this.discussion = true;
 
 		switch(courseInfoArr.length) {
+      // length 11: Same instructor for lecture and discussion
 			case 11:
 				this.discInstructor = courseInfoArr[4];
 				this.discDays = courseInfoArr[8].split(' ');
@@ -42,6 +40,7 @@ var Course = function Course(courseInfoArr, qtr) {
 				this.discEndTime = courseInfoArr[9].split('-')[1];
 				this.discLocation = courseInfoArr[10];
 				break;
+      // length 12: Different instructors for lecture and discussion
 			case 12:
 				courseInfoArr.move(5, 8); //Move TA into sequential elem for ease
 				this.discInstructor = courseInfoArr[8];
@@ -50,6 +49,7 @@ var Course = function Course(courseInfoArr, qtr) {
 				this.discEndTime = courseInfoArr[10].split('-')[1];
 				this.discLocation = courseInfoArr[11];
 				break;
+      // length 13: One instructor for lecture, Multiple instructors for discussion
 			case 13:
 				courseInfoArr.move(5, 9); //Move TAs into sequential elem for ease
 				courseInfoArr.move(5, 9); //Move TAs into sequential elem for ease
@@ -65,17 +65,22 @@ var Course = function Course(courseInfoArr, qtr) {
 	}
 
 	// There is a lecture at the very least
+  var i = 1;
 	if(courseInfoArr.length >= 8) {
 		this.course = courseAndTitle.split(' - ')[0].trim();
 		this.title = courseAndTitle.split(' - ')[1].trim();
     this.id = [this.course, this.title].join(' - ');
-		this.enrollCode = courseInfoArr[1];
-		this.grading = courseInfoArr[2];
-		this.units = courseInfoArr[3];
-		this.instructor = courseInfoArr[4];
-		this.days = courseInfoArr[5].split(' ');
-		this.startTime = courseInfoArr[6].split('-')[0];
-		this.endTime = courseInfoArr[6].split('-')[1];
-		this.location = courseInfoArr[7];
+		this.enrollCode = courseInfoArr[i++]; //1
+		this.grading = courseInfoArr[i++]; //2
+		this.units = courseInfoArr[i++]; //3
+		this.instructor = courseInfoArr[i++]; //4
+    if(courseInfoArr.length == 9)
+    {
+      this.instructor += ', ' + courseInfoArr[i++]; //5
+    }
+		this.days = courseInfoArr[i++].split(' '); //5 or 6
+		this.startTime = courseInfoArr[i].split('-')[0]; //6 or 7
+		this.endTime = courseInfoArr[i++].split('-')[1]; //6 or 7
+		this.location = courseInfoArr[i];
 	}
 };
